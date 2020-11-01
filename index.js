@@ -19,14 +19,18 @@ client.on("message", (msg) => {
 		getShortenedLink(content, (err, shortLink) => {
 			if (err) return;
 
-			const embed = new Discord.MessageEmbed();
-			embed.setTitle(msg.author.username);
-			embed.addField(getAmazonProductTitle(content), shortLink);
-			embed.setColor(msg.member.displayHexColor);
+			getAmazonProductTitle(content, (err, title) => {
+				const embed = new Discord.MessageEmbed();
+				embed.setTitle(msg.author.username);
+				embed.addField(title ? title : "Amazon", shortLink);
+				embed.setColor(msg.member.displayHexColor);
 
-			msg.channel.send(embed);
+				msg.channel.send(embed);
 
-			msg.delete();
+				msg.delete();
+
+				if (err) console.error(err);
+			});
 		});
 	}
 });
@@ -52,11 +56,11 @@ function getShortenedLink(longLink, callback) {
 			callback(null, resp.data.link);
 		})
 		.catch((err) => {
-			console.log(err, null);
+			callback(err, null);
 		});
 }
 
-function getAmazonProductTitle(url) {
+function getAmazonProductTitle(url, callback) {
 	let getReq = {
 		mehtod: "get",
 		url,
@@ -67,9 +71,9 @@ function getAmazonProductTitle(url) {
 			let title = resp.data.match(/<title[^>]*>([^<]+)<\/title>/)[1];
 			title = title.split(":")[0];
 			title = title.length > AMAZON_PRODUCT_TITLE_LENGTH ? title.substring(0, AMAZON_PRODUCT_TITLE_LENGTH) + "..." : title;
-			console.log(title);
+			callback(null, title);
 		})
 		.catch((err) => {
-			console.error(err);
+			callback(err, null);
 		});
 }

@@ -5,8 +5,6 @@ const axios = require("axios");
 const config = JSON.parse(fs.readFileSync("config.json", "utf-8"));
 const client = new Discord.Client();
 
-const DEFAULT_USERNAME = "Link Shortening Bot";
-
 client.on("ready", () => {
 	console.log(client.user.username + " ready");
 });
@@ -38,7 +36,7 @@ function getShortenedLink(longLink, callback) {
 		method: "post",
 		url: "https://api-ssl.bitly.com/v4/shorten",
 		headers: {
-			Authorization: "Bearer e0d9271cf380960190cce917626580fe7c83d791",
+			Authorization: "Bearer " + config.bitlyApiKey,
 			"Content-Type": "application/json",
 		},
 		data: {
